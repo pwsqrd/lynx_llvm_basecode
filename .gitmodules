@@ -1,0 +1,15 @@
+[submodule "submodules/llvm-mos-sdk"]
+	path = submodules/llvm-mos-sdk
+	url = https://github.com/llvm-mos/llvm-mos-sdk.git
+[submodule "submodules/llvm-mos"]
+	path = submodules/llvm-mos
+	url = https://github.com/programmerunit38416/llvm-mos.git
+[submodule "submodules/sprpck"]
+	path = submodules/sprpck
+	url = https://github.com/programmerunit38416/sprpck
+[submodule "submodules/lynx-encryption-tools"]
+	path = submodules/lynx-encryption-tools
+	url = https://github.com/programmerunit38416/lynx-encryption-tools.git
+[submodule "tools/zx02"]
+	path = tools/zx02
+	url = https://github.com/dmsc/zx02

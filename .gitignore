@@ -1,0 +1,27 @@
+# Build outputs
+src/build/
+src/build.nin
+out/
+
+src/a.lyx
+
+# Generated files
+
+# Legacy build outputs (can be removed after transition)
+src/t.elf
+src/x.map
+src/a.o
+src/disasm-full.txt
+src/symbols.txt
+
+# Toolchain build outputs
+submodules/llvm-mos/build/
+submodules/llvm-mos-sdk/build/
+submodules/llvm-mos-sdk/bin/
+
+# Submodules with local modifications
+submodules/llvm-mos-sdk
+tools/cart_tools/sprpck
+tools/cart_tools/makelnx/makelnx
+submodules/lynx-encryption-tools
+submodules/sprpck

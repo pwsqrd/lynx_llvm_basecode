@@ -1,0 +1,9 @@
+{
+    "name": "MyGame",
+    "manufacturer": "Homebrew",
+    "cart_size": "512K",
+    "eeprom_93c46": true,
+    "eeprom_sd_save": true,
+    "sources": ["game/main.cpp"],
+    "overlays": ["menu", "level", "levelend"]
+}

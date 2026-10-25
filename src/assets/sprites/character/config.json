@@ -1,0 +1,14 @@
+{
+  "global": {
+    "asset_type": "sprite",
+    "cart_pack_type": "unaligned",
+    "scale": 1,
+    "bpp": 4,
+    "packed": true,
+    "action_point": [
+      0,
+      0
+    ],
+    "overlay": "level"
+  }
+}
