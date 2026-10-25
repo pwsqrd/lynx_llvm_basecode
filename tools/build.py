@@ -216,7 +216,7 @@ def main():
         sys.exit(1)
 
     if not all(os.path.exists(t) for t in (f"{LLVM_BIN}/clang", f"{SDK_BIN}/mos-lynx.cfg", ZX02, MAKELNX)):
-        print("Toolchain not built. Run 'python3 tools/setup.py' first")
+        print("Toolchain not built. Run 'python3 setup.py' first")
         sys.exit(1)
 
     project = json.loads(Path("project.json").read_text())

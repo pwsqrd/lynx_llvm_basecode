@@ -3,8 +3,8 @@
 One-time setup: installs host prerequisites, fetches submodules and builds
 the toolchain. Safe to re-run; finished steps are skipped.
 
-    python3 tools/setup.py          full setup
-    python3 tools/setup.py --no-install
+    python3 setup.py          full setup
+    python3 setup.py --no-install
                                     skip installing system packages
 
 Supported hosts:
@@ -26,7 +26,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent
 
 TOOLS = ["git", "cmake", "ninja", "clang", "clang++", "make", "gcc"]
 
