@@ -3,7 +3,7 @@
 	url = https://github.com/llvm-mos/llvm-mos-sdk.git
 [submodule "submodules/llvm-mos"]
 	path = submodules/llvm-mos
-	url = https://github.com/programmerunit38416/llvm-mos.git
+	url = https://github.com/llvm-mos/llvm-mos.git
 [submodule "submodules/sprpck"]
 	path = submodules/sprpck
 	url = https://github.com/programmerunit38416/sprpck
