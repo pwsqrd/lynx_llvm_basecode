@@ -11,12 +11,13 @@ python3 setup.py
 ```
 
 `setup.py` installs the host prerequisites (cmake, ninja, clang, libc++,
-make, gcc), fetches the submodules and builds the toolchain. The first run
-builds LLVM and takes a long time. Re-running it skips finished steps.
+OpenSSL, make, gcc), fetches the submodules and builds the toolchain. The
+first run builds LLVM and takes a long time. Re-running it skips finished steps.
 
-Supported hosts: Arch/Manjaro/CachyOS, Debian/Ubuntu, Fedora, macOS (Homebrew),
-and Windows from an MSYS2 UCRT64 shell. On anything else, install the
-prerequisites yourself and run `python3 setup.py --no-install`.
+Supported hosts: Linux only for now (Arch/Manjaro/CachyOS, Debian/Ubuntu,
+Fedora). On Windows, use WSL2 with Ubuntu. macOS is not supported yet. On
+other Linux distros, install the prerequisites yourself and run
+`python3 setup.py --no-install`.
 
 ## Building
 

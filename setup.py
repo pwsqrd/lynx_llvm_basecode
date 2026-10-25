@@ -7,15 +7,13 @@ the toolchain. Safe to re-run; finished steps are skipped.
     python3 setup.py --no-install
                                     skip installing system packages
 
-Supported hosts:
+Supported hosts (Linux only for now; on Windows use WSL2):
     Arch / Manjaro / CachyOS        pacman
     Debian / Ubuntu                 apt
     Fedora                          dnf
-    macOS                           Homebrew (plus Xcode command line tools)
-    Windows                         MSYS2 UCRT64 shell (pacman)
 
 Steps:
-  1. Install any missing prerequisites (cmake, ninja, clang, libc++, make, gcc, git).
+  1. Install any missing prerequisites (cmake, ninja, clang, libc++, OpenSSL, make, gcc, git).
   2. git submodule update --init --recursive
   3. make -f Makefile.toolchain (llvm-mos, llvm-mos-sdk, sprpck, lynxenc, zx02, makelnx)
 """
@@ -33,20 +31,17 @@ TOOLS = ["git", "cmake", "ninja", "clang", "clang++", "make", "gcc"]
 # Package lists per package manager. Listing everything is fine; the
 # managers skip what is already installed.
 PACKAGES = {
-    "pacman": ["git", "cmake", "ninja", "clang", "libc++", "make", "gcc"],
-    "apt":    ["git", "cmake", "ninja-build", "clang", "libc++-dev", "libc++abi-dev", "build-essential"],
-    "dnf":    ["git", "cmake", "ninja-build", "clang", "libcxx-devel", "libcxxabi-devel", "make", "gcc"],
-    "brew":   ["cmake", "ninja"],
-    "msys2":  ["git", "make", "mingw-w64-ucrt-x86_64-cmake", "mingw-w64-ucrt-x86_64-ninja",
-               "mingw-w64-ucrt-x86_64-clang", "mingw-w64-ucrt-x86_64-gcc"],
+    "pacman": ["git", "cmake", "ninja", "clang", "libc++", "openssl", "make", "gcc"],
+    "apt":    ["git", "cmake", "ninja-build", "clang", "libc++-dev", "libc++abi-dev", "libssl-dev",
+               "build-essential"],
+    "dnf":    ["git", "cmake", "ninja-build", "clang", "libcxx-devel", "libcxxabi-devel", "openssl-devel",
+               "make", "gcc"],
 }
 
 INSTALL_CMD = {
     "pacman": ["sudo", "pacman", "-S", "--needed", "--noconfirm"],
     "apt":    ["sudo", "apt-get", "install", "-y"],
     "dnf":    ["sudo", "dnf", "install", "-y"],
-    "brew":   ["brew", "install"],
-    "msys2":  ["pacman", "-S", "--needed", "--noconfirm"],
 }
 
 
@@ -74,19 +69,15 @@ def linux_distro():
 
 
 def package_manager():
-    system = platform.system()
-    if system == "Darwin":
-        return "brew"
-    if system == "Windows" or system.startswith(("MSYS", "MINGW", "CYGWIN")):
-        return "msys2" if os.environ.get("MSYSTEM") else None
-    if system == "Linux":
-        ids = linux_distro()
-        if ids & {"arch", "manjaro", "cachyos", "endeavouros"}:
-            return "pacman"
-        if ids & {"debian", "ubuntu"}:
-            return "apt"
-        if ids & {"fedora", "rhel"}:
-            return "dnf"
+    if platform.system() != "Linux":
+        return None
+    ids = linux_distro()
+    if ids & {"arch", "manjaro", "cachyos", "endeavouros"}:
+        return "pacman"
+    if ids & {"debian", "ubuntu"}:
+        return "apt"
+    if ids & {"fedora", "rhel"}:
+        return "dnf"
     return None
 
 
@@ -102,10 +93,22 @@ def has_libcxx():
     return test.returncode == 0
 
 
+def has_openssl():
+    """True if gcc can build against OpenSSL (needed by lynxenc)."""
+    if not shutil.which("gcc"):
+        return False
+    test = subprocess.run(["gcc", "-x", "c", "-", "-o", os.devnull, "-lssl", "-lcrypto"],
+                          input="#include <openssl/evp.h>\nint main(void) { return 0; }\n",
+                          text=True, capture_output=True)
+    return test.returncode == 0
+
+
 def missing_prereqs():
     missing = [t for t in TOOLS if not shutil.which(t)]
     if not has_libcxx():
         missing.append("libc++")
+    if not has_openssl():
+        missing.append("openssl")
     return missing
 
 
@@ -120,20 +123,9 @@ def install_prereqs(allow_install):
     pm = package_manager()
     if not allow_install or pm is None:
         if pm is None:
-            print("Unsupported host for automatic install. Install these yourself and re-run.")
-            if platform.system() == "Windows":
-                print("On Windows, run this script from an MSYS2 UCRT64 shell (https://www.msys2.org).")
+            print("Unsupported host for automatic install. Install these yourself and re-run")
+            print("with --no-install. Only Linux is supported for now; on Windows use WSL2.")
         sys.exit(1)
-
-    if pm == "brew":
-        if subprocess.run(["xcode-select", "-p"], capture_output=True).returncode != 0:
-            print("Installing Xcode command line tools (provides clang, make, git)...")
-            run(["xcode-select", "--install"])
-            print("Re-run this script once the Xcode tools installer has finished.")
-            sys.exit(1)
-        if not shutil.which("brew"):
-            print("Homebrew not found. Install it from https://brew.sh and re-run.")
-            sys.exit(1)
 
     step(f"Installing prerequisites ({pm})")
     if pm == "apt":
