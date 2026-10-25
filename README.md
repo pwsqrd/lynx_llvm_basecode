@@ -1,28 +1,29 @@
 Atari lynx basecode using llvm compiler
 
-## Prerequisites
-
-- CMake 3.18+
-- Ninja build system
-- Python 3
-- Clang/LLVM (for host compilation)
-- **Linux only**: libc++ (required for toolchain build)
-  - Arch/Manjaro: `sudo pacman -S libc++`
-  - Ubuntu/Debian: `sudo apt install libc++-dev libc++abi-dev`
-  - Fedora: `sudo dnf install libcxx libcxxabi`
-
-
 ## Setup
 
-After cloning init submodules
+Requires Python 3 and git. Everything else is installed by the setup script.
+
 ```bash
-git submodule update --init --recursive
+git clone https://github.com/pwsqrd/lynx_llvm_basecode.git
+cd lynx_llvm_basecode
+python3 tools/setup.py
 ```
-Make the tools
-make -f Makefile.toolchain
+
+`tools/setup.py` installs the host prerequisites (cmake, ninja, clang, libc++,
+make, gcc), fetches the submodules and builds the toolchain. The first run
+builds LLVM and takes a long time. Re-running it skips finished steps.
+
+Supported hosts: Arch/Manjaro/CachyOS, Debian/Ubuntu, Fedora, macOS (Homebrew),
+and Windows from an MSYS2 UCRT64 shell. On anything else, install the
+prerequisites yourself and run `python3 tools/setup.py --no-install`.
+
+## Building
 
 Build the lynx project (settings in `src/project.json`)
+```bash
 python3 tools/build.py
+```
 
 Build outputs in `out/`:
 - `a.o` - Raw BLL binary (for ComLynx/development)

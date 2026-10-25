@@ -47,13 +47,15 @@ LLVM_MOS_SDK_INSTALL = submodules/llvm-mos-sdk/bin
 SDK_BIN = $(LLVM_MOS_SDK_INSTALL)/bin
 SPRPCK = submodules/sprpck/src/sprpck
 ENCRYPT_TOOLS = submodules/lynx-encryption-tools
+ZX02 = tools/zx02/build/zx02
+MAKELNX = tools/makelnx/makelnx
 
 all: toolchain
 	@echo ""
 	@echo "Toolchain build complete!"
-	@echo "You can now build the project with: cd src && make"
+	@echo "You can now build the project with: python3 tools/build.py"
 
-toolchain: $(SDK_BIN)/mos-clang $(SPRPCK) $(ENCRYPT_TOOLS)/lynxenc
+toolchain: $(SDK_BIN)/mos-clang $(SPRPCK) $(ENCRYPT_TOOLS)/lynxenc $(ZX02) $(MAKELNX)
 
 # Build llvm-mos compiler from source (uses MOS.cmake configuration)
 $(LLVM_MOS_BUILD)/bin/clang:
@@ -103,6 +105,16 @@ $(ENCRYPT_TOOLS)/lynxenc:
 	@echo "Building lynx-encryption-tools..."
 	$(MAKE) -C $(ENCRYPT_TOOLS)
 
+# Build zx02 compressor (used for overlays)
+$(ZX02):
+	@echo "Building zx02..."
+	$(MAKE) -C tools/zx02
+
+# Build makelnx (.lyx -> .lnx)
+$(MAKELNX): tools/makelnx/Source/make_lnx.c
+	@echo "Building makelnx..."
+	$(MAKE) -C tools/makelnx
+
 # Clean all toolchain builds
 clean:
 	rm -rf $(LLVM_MOS_BUILD)
@@ -110,5 +122,6 @@ clean:
 	rm -rf $(LLVM_MOS_SDK_INSTALL)
 	$(MAKE) -C submodules/sprpck/src clean || true
 	$(MAKE) -C $(ENCRYPT_TOOLS) clean || true
+	rm -rf tools/zx02/build
 
 .PHONY: all toolchain clean

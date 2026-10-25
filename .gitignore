@@ -16,3 +16,6 @@ src/symbols.txt
 
 # Build artifacts inside submodules are hidden via `ignore = dirty` in
 # .gitmodules (a parent .gitignore cannot reach into a submodule).
+
+# Built by Makefile.toolchain
+tools/makelnx/makelnx
