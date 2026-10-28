@@ -50,12 +50,12 @@ ZX02    = f"{TOOLS}/zx02/build/zx02"
 MAKELNX = f"{TOOLS}/makelnx/makelnx"
 
 CFLAGS = [
-    "-O0", "-g", "-Wall", "-Wextra", "-Wno-incompatible-library-redeclaration", "-mlto-zp=0",
+    "-O2", "-g", "-Wall", "-Wextra", "-Wno-incompatible-library-redeclaration", "-mlto-zp=0",
     "-I.", f"-I{GEN}", "-I../submodules/llvm-mos-sdk/mos-platform/lynx",
     "-ffunction-sections", "-fdata-sections",
 ]
 CXXFLAGS = CFLAGS + ["-fno-exceptions", "-fno-rtti"]
-ASFLAGS  = [f for f in CFLAGS if f != "-mlto-zp=0"]
+ASFLAGS  = [f for f in CFLAGS if not f.startswith("-mlto-zp")]
 LDFLAGS  = ["-nostartfiles", f"-Wl,-Map,{BUILD}/x.map", "-flto", "-Wl,--allow-multiple-definition", f"-L{SDK_LIB}"]
 
 SDK_CPP = ["sys/sys.cpp", "sys/sprite.cpp", "sys/suzy_math.cpp", "sys/chipper/chipper_sfx.cpp", "sys/audio.cpp"]

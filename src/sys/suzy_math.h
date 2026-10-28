@@ -450,6 +450,63 @@ struct AccumContext
 
     /*
     =================
+    AccumContext::Start
+
+    Waits for the previous multiply, then starts adding signed a x b to the
+    accumulator and returns at once, so the CPU can work while it runs.
+    Needs signed accumulate mode.
+    =================
+    */
+    __attribute__((always_inline)) inline void Start(s16 a, s16 b)
+    {
+        Wait();
+        MATH_CD = static_cast<u16>(b);
+        MATH_AB = static_cast<u16>(a);
+    }
+
+    /*
+    =================
+    AccumContext::Clear
+
+    Zeroes the accumulator. A write to the low byte of a register pair
+    clears the high byte, so K and M clear all of JKLM.
+    =================
+    */
+    __attribute__((always_inline)) inline void Clear()
+    {
+        Wait();
+        MATH_K = 0;
+        MATH_M = 0;
+    }
+
+    /*
+    =================
+    AccumContext::GetS8_RShift8
+
+    Signed accumulator >> 8, as 8 bits (MATH_L). The result must fit s8.
+    =================
+    */
+    __attribute__((always_inline)) inline s8 GetS8_RShift8()
+    {
+        Wait();
+        return static_cast<s8>(MATH_L);
+    }
+
+    /*
+    =================
+    AccumContext::GetS16
+
+    Low 16 bits of the accumulator, signed.
+    =================
+    */
+    __attribute__((always_inline)) inline s16 GetS16()
+    {
+        Wait();
+        return static_cast<s16>(MATH_LM);
+    }
+
+    /*
+    =================
     AccumContext::Get8
 
     Low byte of the accumulator.
@@ -500,6 +557,92 @@ struct AccumContext
         return MATH_JKLM;
     }
 };
+
+/*
+=================
+SetMode
+
+Selects SIGNED and/or ACCUMULATE for the inline multiplies below, which
+leave the mode alone so a run of them costs no SPRSYS writes.
+=================
+*/
+__attribute__((always_inline)) inline void SetMode(u8 flags)
+{
+    SUZY.SprsysSetMathMode(flags);
+}
+
+struct SMulResult
+{
+    /*
+    =================
+    SMulResult::GetS8_RShift8
+
+    Signed (a x b) >> 8, as 8 bits (MATH_G). The result must fit s8.
+    =================
+    */
+    __attribute__((always_inline)) inline s8 GetS8_RShift8() const
+    {
+        Wait();
+        return static_cast<s8>(MATH_G);
+    }
+
+    /*
+    =================
+    SMulResult::GetS16_RShift8
+
+    Signed (a x b) >> 8, as 16 bits (MATH_FG).
+    =================
+    */
+    __attribute__((always_inline)) inline s16 GetS16_RShift8() const
+    {
+        Wait();
+        return static_cast<s16>(MATH_FG);
+    }
+
+    /*
+    =================
+    SMulResult::GetU8_RShift8_Round
+
+    Low byte of (a x b + 128) >> 8: MATH_G plus the top bit of MATH_H.
+    =================
+    */
+    __attribute__((always_inline)) inline u8 GetU8_RShift8_Round() const
+    {
+        Wait();
+        return static_cast<u8>(MATH_G + (MATH_H >> 7));
+    }
+};
+
+/*
+=================
+StartSignedMultiply
+
+Waits for the previous multiply, then starts a x b and returns at once.
+Needs SetMode(SIGNED): the hardware applies the sign, so EFGH holds the
+two's complement product. Signed-mode quirks: $8000 counts as +32768.
+=================
+*/
+__attribute__((always_inline)) inline SMulResult StartSignedMultiply(s16 a, s16 b)
+{
+    Wait();
+    MATH_CD = static_cast<u16>(b);
+    MATH_AB = static_cast<u16>(a);
+    return SMulResult{};
+}
+
+/*
+=================
+RestartSignedMultiply
+
+Starts a x the b of the previous signed multiply, rewriting only AB.
+=================
+*/
+__attribute__((always_inline)) inline SMulResult RestartSignedMultiply(s16 a)
+{
+    Wait();
+    MATH_AB = static_cast<u16>(a);
+    return SMulResult{};
+}
 
 extern MulResult StartMultiply(u8 a, u8 b);
 extern MulResult StartMultiply(u16 a, u16 b);
