@@ -298,7 +298,7 @@ void main(int argc, char *argv[])
    strcpy(newhead.cartname,game);
    for(data=0;data<16;data++) newhead.manufname[data]=0;
    strcpy(newhead.manufname,manuf);
-   for(data=0;data<6;data++) newhead.spare[data]=0;
+   for(data=0;data<5;data++) newhead.spare[data]=0;
    newhead.page_size_bank0=(UWORD)page_size0;
    newhead.page_size_bank1=(UWORD)page_size1;
    newhead.rotation=rotation;
